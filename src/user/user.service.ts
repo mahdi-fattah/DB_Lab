@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import UserEntity from '../db/user.entity';
 import CreateUserDto from './dto/create-user.dto';
 import BookEntity from '../db/book.entity';
-import {getConnection} from "typeorm";
+import UpdateUserDto from './dto/update-user.dto';
 
 @Injectable()
 export class UserServices {
@@ -21,5 +21,20 @@ export class UserServices {
     console.log(typeof(userID));
     const user: UserEntity = await UserEntity.findOne({where: {id: userID}, relations: ['books']});
     return user.books;
+  }
+
+  async delete(userID: number): Promise<UserEntity> {
+    const user = await UserEntity.findOne(userID);
+    await user.remove();
+    return user;
+  }
+  async update(userDetails: UpdateUserDto): Promise<UserEntity> {
+    const { id, name} = userDetails;
+    const user = await UserEntity.findOne(id);
+    if(user != undefined) {
+      user.name = name;
+      await UserEntity.save(user);
+    }
+    return user;
   }
 }
